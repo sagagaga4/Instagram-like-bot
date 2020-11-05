@@ -1,0 +1,107 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import random
+import sys
+import self
+class InstagramBot:
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.driver = webdriver.Chrome()
+
+    def closeBrowser(self):
+        self.driver.close()
+
+    def login(self):
+        driver = self.driver
+        driver.get("https://www.instagram.com/")
+        time.sleep(2)
+        face_log = driver.find_element_by_xpath("/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div/div[5]/button/span[2]")
+        face_log.click()
+        time.sleep(2)
+        user_name_elem = driver.find_element_by_xpath("/html/body/div[1]/div[3]/div[1]/div/div/div[2]/div[1]/form/div/div[1]/input")
+        user_name_elem.clear()
+        user_name_elem.send_keys(self.username)
+        pass_name_elem = driver.find_element_by_xpath("/html/body/div[1]/div[3]/div[1]/div/div/div[2]/div[1]/form/div/div[2]/input")
+        pass_name_elem.clear()
+        pass_name_elem.send_keys(self.password)
+        login = driver.find_element_by_xpath("/html/body/div[1]/div[3]/div[1]/div/div/div[2]/div[1]/form/div/div[3]/button")
+        login.click()
+        time.sleep(10)
+        not_now = driver.find_element_by_xpath("/html/body/div[4]/div/div/div/div[3]/button[2]")
+        not_now.click()
+        time.sleep(2)
+        see_all_followers = driver.find_element_by_xpath("/html/body/div[1]/section/main/section/div[3]/div[2]/div[1]/a/div")
+        see_all_followers.click()
+        time.sleep(5)
+
+    def like_photo(self, hashtag):
+        driver = self.driver
+        driver.get("https://www.instagram.com/explore/tags/" + hashtag + "/")
+        time.sleep(2)
+
+        # gathering photos
+        pic_hrefs = []
+        for i in range(1, 7):
+            try:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(2)
+                # get tags
+                hrefs_in_view = driver.find_elements_by_tag_name('a')
+                # finding relevant hrefs
+                hrefs_in_view = [elem.get_attribute('href') for elem in hrefs_in_view
+                                 if '.com/p/' in elem.get_attribute('href')]
+                # building list of unique photos
+                [pic_hrefs.append(href) for href in hrefs_in_view if href not in pic_hrefs]
+                # print("Check: pic href length " + str(len(pic_hrefs)))
+            except Exception:
+                continue
+
+        # Liking photos
+        unique_photos = len(pic_hrefs)
+        for pic_href in pic_hrefs:
+            driver.get(pic_href)
+            time.sleep(2)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            try:
+                time.sleep(random.randint(2, 4))
+                like_button = lambda: driver.find_element_by_name('like')
+                like_button.click()
+                for second in reversed(range(0, random.randint(18, 28))):
+                    print_same_line("#" + hashtag + ': unique photos left: ' + str(unique_photos)
+                                    + " | Sleeping " + str(second))
+                    time.sleep(1)
+            except Exception as e:
+                time.sleep(2)
+            unique_photos -= 1
+
+if __name__ == "__main__":
+
+    username = "USERNAME"
+    password = "PASSWORD"
+
+    ig = InstagramBot("user", "password")
+    ig.login()
+    
+    #Create a list of potential hashtags for your feed content
+    
+
+    hashtags = ['music', 'vocal', 'rock', 'photography', 'musiccover',
+                'newyork', 'artsy', 'talented', 'musician', 'covers', 'fun', 'happy',
+                'art', 'funny', 'sing', 'followme', 'follow', 'cinematography', 'cinema',
+                'love', 'instagood', 'viral', 'sing', 'fashion', 'sun', 'sexyvocals',
+                'street', 'guitar', 'musicfan', 'studio', 'voice', 'vintage', 'fierce']
+
+    while True:
+        try:
+            # Choose a random tag from the list of tags
+            tag = random.choice(hashtags)
+            ig.like_photo(tag)
+        except Exception:
+            ig.closeBrowser()
+            time.sleep(60)
+
+Sagi= InstagramBot("user", "password")
+Sagi.login()
